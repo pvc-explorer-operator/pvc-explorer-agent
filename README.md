@@ -8,7 +8,7 @@
 
 <p align="center">
 	<a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache%202.0-blue.svg" alt="License"></a>
-	<a href="https://go.dev"><img src="https://img.shields.io/badge/go-1.22+-00ADD8.svg" alt="Go"></a>
+	<a href="https://go.dev"><img src="https://img.shields.io/badge/go-1.26+-00ADD8.svg" alt="Go"></a>
 </p>
 
 <p align="center">
