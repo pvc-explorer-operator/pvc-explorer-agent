@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" aria-label="PVC Explorer Agent favicon">
+  <defs>
+    <linearGradient id="hexGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#0F2F7A"/>
+      <stop offset="50%" stop-color="#245BCF"/>
+      <stop offset="100%" stop-color="#326CE5"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="64" height="64" rx="10" fill="#070E1C"/>
+  <polygon points="32,11 45,19 45,34 32,42 19,34 19,19" fill="url(#hexGrad)"/>
+  <polygon points="32,11 45,19 45,34 32,42 19,34 19,19" fill="none" stroke="#FFFFFF" stroke-width="1.5"/>
+  <path d="M33,18 L28,27 L32,27 L29,34 L36,25 L32,25 Z" fill="#FFFFFF"/>
+</svg>

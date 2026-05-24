@@ -1,0 +1,66 @@
+name: Bug report
+description: Report a reproducible bug
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report this bug.
+
+  - type: input
+    id: summary
+    attributes:
+      label: Summary
+      description: One-line description of the issue
+      placeholder: Upload endpoint returns 500 for nested paths
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Provide exact steps
+      placeholder: |
+        1. Start agent with pvc mounted
+        2. POST file to /api/upload
+        3. Observe 500 response
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: pvc-exporter-agent version/tag
+      placeholder: v0.1.0
+    validations:
+      required: false
+
+  - type: input
+    id: k8s
+    attributes:
+      label: Kubernetes version
+      placeholder: v1.30.2
+    validations:
+      required: false
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant logs
+      render: shell
+      description: Include agent logs if available

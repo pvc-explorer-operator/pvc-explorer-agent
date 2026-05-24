@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 200" width="900" height="200" aria-label="PVC Explorer Agent wordmark">
+  <defs>
+    <linearGradient id="hexGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#0F2F7A"/>
+      <stop offset="50%" stop-color="#245BCF"/>
+      <stop offset="100%" stop-color="#326CE5"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="900" height="200" rx="20" fill="#070E1C"/>
+
+  <polygon points="100,36 145,62 145,114 100,140 55,114 55,62" fill="#326CE5" opacity="0.22"/>
+  <polygon points="100,36 145,62 145,114 100,140 55,114 55,62" fill="url(#hexGrad)"/>
+  <polygon points="100,36 145,62 145,114 100,140 55,114 55,62" fill="none" stroke="#FFFFFF" stroke-width="3"/>
+  <path d="M104,61 L88,93 L102,93 L92,118 L113,88 L99,88 Z" fill="#FFFFFF" opacity="0.95"/>
+
+  <line x1="100" y1="142" x2="100" y2="162" stroke="#326CE5" stroke-width="2" stroke-dasharray="4,3" opacity="0.8"/>
+  <ellipse cx="100" cy="162" rx="20" ry="5.5" fill="#1A3A6B"/>
+  <rect x="80" y="162" width="40" height="16" fill="#245BCF"/>
+  <ellipse cx="100" cy="178" rx="20" ry="5.5" fill="#132B66"/>
+  <ellipse cx="100" cy="162" rx="20" ry="5.5" fill="#326CE5"/>
+
+  <text x="190" y="95" font-family="'Courier New', Courier, monospace" font-size="54" font-weight="400" fill="#A9C3F6" letter-spacing="2">PVC-explorer</text>
+  <text x="190" y="154" font-family="'Courier New', Courier, monospace" font-size="64" font-weight="700" fill="#FFFFFF" letter-spacing="2">agent</text>
+</svg>

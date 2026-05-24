@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="120 80 272 300" width="420" height="300" aria-label="PVC Explorer Agent icon">
+  <defs>
+    <linearGradient id="hexGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#0F2F7A"/>
+      <stop offset="50%" stop-color="#245BCF"/>
+      <stop offset="100%" stop-color="#326CE5"/>
+    </linearGradient>
+    <linearGradient id="cylSmall" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#245BCF"/>
+      <stop offset="100%" stop-color="#1A3A6B"/>
+    </linearGradient>
+    <filter id="softglow" x="-25%" y="-25%" width="150%" height="150%">
+      <feGaussianBlur stdDeviation="3.5" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <circle cx="256" cy="196" r="120" fill="#326CE5" opacity="0.12"/>
+  <circle cx="256" cy="196" r="105" fill="none" stroke="#326CE5" stroke-width="2.5" opacity="0.32"/>
+
+  <polygon points="256,106 334,151 334,241 256,286 178,241 178,151" fill="#326CE5" opacity="0.22"/>
+  <polygon points="256,106 334,151 334,241 256,286 178,241 178,151" fill="url(#hexGrad)"/>
+  <polygon points="256,106 334,151 334,241 256,286 178,241 178,151" fill="none" stroke="#FFFFFF" stroke-width="4" filter="url(#softglow)"/>
+
+  <path d="M262,148 L236,204 L260,204 L244,248 L278,196 L254,196 Z" fill="#FFFFFF" opacity="0.95"/>
+
+  <line x1="256" y1="290" x2="256" y2="336" stroke="#326CE5" stroke-width="2" stroke-dasharray="5,4" opacity="0.8"/>
+  <circle cx="256" cy="290" r="3" fill="#FFFFFF" opacity="0.7"/>
+
+  <ellipse cx="256" cy="336" rx="34" ry="9" fill="#1A3A6B"/>
+  <rect x="222" y="336" width="68" height="26" fill="url(#cylSmall)"/>
+  <ellipse cx="256" cy="362" rx="34" ry="9" fill="#132B66"/>
+  <ellipse cx="256" cy="336" rx="34" ry="9" fill="#326CE5"/>
+  <circle cx="278" cy="336" r="3.5" fill="#FFFFFF"/>
+</svg>

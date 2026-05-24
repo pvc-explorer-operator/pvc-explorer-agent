@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PVC Exporter Agent</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    body { margin: 0; background: #f5f7f8; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
+    #boot-screen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      gap: 1.25rem;
+      background: #f5f7f8;
+      color: #6b7582;
+    }
+    #boot-screen .boot-spinner {
+      width: 32px;
+      height: 32px;
+      border: 3px solid #e0e2e5;
+      border-top-color: #00b8d4;
+      border-radius: 50%;
+      animation: boot-spin 0.7s linear infinite;
+    }
+    #boot-screen .boot-title { font-size: 1rem; font-weight: 600; color: #212121; }
+    #boot-screen .boot-sub   { font-size: 0.8rem; opacity: 0.7; }
+    #boot-screen .boot-dot   { display: inline-block; animation: boot-dot 1.2s infinite; }
+    #boot-screen .boot-dot:nth-child(2) { animation-delay: 0.2s; }
+    #boot-screen .boot-dot:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes boot-spin { to { transform: rotate(360deg); } }
+    @keyframes boot-dot  { 0%,80%,100% { opacity: 0; } 40% { opacity: 1; } }
+  </style>
+</head>
+<body>
+  <div id="app-root">
+    <div id="boot-screen">
+      <div class="boot-spinner"></div>
+      <div class="boot-title">PVC Exporter Agent</div>
+      <div class="boot-sub">
+        Starting up<span class="boot-dot">.</span><span class="boot-dot">.</span><span class="boot-dot">.</span>
+      </div>
+    </div>
+  </div>
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then(regs => regs.forEach(r => r.unregister()));
+    }
+  </script>
+  <script src="app.js"></script>
+</body>
+</html>

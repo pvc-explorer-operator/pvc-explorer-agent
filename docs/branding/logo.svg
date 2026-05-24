@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" aria-label="PVC Explorer Agent logo">
+  <defs>
+    <linearGradient id="hexGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#0F2F7A"/>
+      <stop offset="50%" stop-color="#245BCF"/>
+      <stop offset="100%" stop-color="#326CE5"/>
+    </linearGradient>
+    <linearGradient id="cylSmall" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#245BCF"/>
+      <stop offset="100%" stop-color="#1A3A6B"/>
+    </linearGradient>
+    <filter id="hexglow" x="-35%" y="-35%" width="170%" height="170%">
+      <feGaussianBlur stdDeviation="10" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="softglow" x="-25%" y="-25%" width="150%" height="150%">
+      <feGaussianBlur stdDeviation="3.5" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="boltglow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="6" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <clipPath id="clip"><rect width="512" height="512" rx="72"/></clipPath>
+    <pattern id="grid" width="24" height="24" patternUnits="userSpaceOnUse">
+      <path d="M 24 0 L 0 0 0 24" fill="none" stroke="#1A3A6B" stroke-width="0.5"/>
+    </pattern>
+  </defs>
+
+  <rect width="512" height="512" rx="72" fill="#070E1C"/>
+  <rect width="512" height="512" rx="72" fill="url(#grid)" opacity="0.5" clip-path="url(#clip)"/>
+  <circle cx="256" cy="196" r="130" fill="#326CE5" opacity="0.1" filter="url(#hexglow)"/>
+
+  <circle cx="256" cy="196" r="105" fill="none" stroke="#326CE5" stroke-width="2.5" opacity="0.35" filter="url(#softglow)"/>
+  <circle cx="256" cy="196" r="128" fill="none" stroke="#326CE5" stroke-width="1.5" opacity="0.2"/>
+  <circle cx="256" cy="196" r="152" fill="none" stroke="#326CE5" stroke-width="1" opacity="0.1"/>
+
+  <polygon points="256,106 334,151 334,241 256,286 178,241 178,151" fill="#326CE5" opacity="0.22" filter="url(#hexglow)"/>
+  <polygon points="256,106 334,151 334,241 256,286 178,241 178,151" fill="url(#hexGrad)"/>
+  <polygon points="256,106 334,151 334,241 256,286 178,241 178,151" fill="none" stroke="#FFFFFF" stroke-width="4" filter="url(#softglow)"/>
+  <polygon points="256,106 334,151 295,150 256,115" fill="#FFFFFF" opacity="0.07"/>
+
+  <path d="M262,148 L236,204 L260,204 L244,248 L278,196 L254,196 Z" fill="#FFFFFF" opacity="0.28" filter="url(#boltglow)"/>
+  <path d="M262,148 L236,204 L260,204 L244,248 L278,196 L254,196 Z" fill="#FFFFFF" opacity="0.95"/>
+
+  <path d="M82,82 A28,28 0 1 0 106,56 A20,20 0 1 1 82,82 Z" fill="#1A3A6B" opacity="0.52"/>
+  <text x="112" y="72" font-family="'Courier New', monospace" font-size="14" font-weight="700" fill="#326CE5" opacity="0.5">z</text>
+  <text x="124" y="62" font-family="'Courier New', monospace" font-size="10" font-weight="700" fill="#326CE5" opacity="0.36">z</text>
+  <text x="133" y="54" font-family="'Courier New', monospace" font-size="7" font-weight="700" fill="#326CE5" opacity="0.22">z</text>
+
+  <line x1="256" y1="290" x2="256" y2="336" stroke="#326CE5" stroke-width="2" stroke-dasharray="5,4" opacity="0.8"/>
+  <circle cx="256" cy="290" r="3" fill="#FFFFFF" opacity="0.7"/>
+  <circle cx="256" cy="336" r="3" fill="#326CE5" opacity="0.7"/>
+
+  <ellipse cx="256" cy="336" rx="34" ry="9" fill="#1A3A6B"/>
+  <rect x="222" y="336" width="68" height="26" fill="url(#cylSmall)"/>
+  <ellipse cx="256" cy="362" rx="34" ry="9" fill="#132B66"/>
+  <ellipse cx="256" cy="336" rx="34" ry="9" fill="#326CE5"/>
+  <circle cx="278" cy="336" r="3.5" fill="#FFFFFF" filter="url(#softglow)"/>
+
+  <line x1="56" y1="392" x2="456" y2="392" stroke="#1A3A6B" stroke-width="1" opacity="0.6"/>
+
+  <text x="256" y="424" text-anchor="middle" font-family="'Courier New', Courier, monospace" font-size="28" font-weight="400" fill="#A9C3F6" letter-spacing="3">PVC-explorer</text>
+  <text x="256" y="472" text-anchor="middle" font-family="'Courier New', Courier, monospace" font-size="52" font-weight="700" fill="#FFFFFF" letter-spacing="4">agent</text>
+</svg>
