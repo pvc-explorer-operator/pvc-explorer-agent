@@ -4,10 +4,14 @@ This document describes the open source security posture for pvc-explorer-agent 
 
 ## Security Model
 
-pvc-explorer-agent intentionally does not implement authentication itself.
+pvc-explorer-agent supports optional Bearer token authentication via the
+`AUTH_TOKEN` environment variable. When `AUTH_TOKEN` is set, every request must
+include an `Authorization: Bearer <token>` header. When unset (the default), the
+agent does not authenticate requests.
 
-- It is expected to run behind a trusted proxy and access-control layer
 - Direct exposure of the agent endpoint is explicitly unsupported
+- When deployed via the controller, authentication is enforced by the controller
+  proxy (Basic Auth + role checks), and the agent runs without `AUTH_TOKEN`
 - See [README.md](../README.md) and [SECURITY.md](../SECURITY.md)
 
 ## Vulnerability Intake and Disclosure

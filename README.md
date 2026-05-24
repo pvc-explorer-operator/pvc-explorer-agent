@@ -16,7 +16,13 @@
 </p>
 
 > [!NOTE]
-> The agent has no authentication. It is only reachable through the controller proxy, which enforces Basic Auth and role checks. Never expose the agent port directly.
+> By default the agent has no authentication and is only reachable through the
+> controller proxy, which enforces Basic Auth and role checks. Never expose the
+> agent port directly.
+>
+> Optional Bearer token authentication can be enabled by setting the `AUTH_TOKEN`
+> environment variable. When set, every request must include an
+> `Authorization: Bearer <token>` header.
 
 ## Community
 

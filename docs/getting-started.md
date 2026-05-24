@@ -8,6 +8,19 @@ go run ./cmd/agent -root /tmp/testdata -pvc my-pvc
 
 The default listener is `:8081`.
 
+### Token authentication
+
+Optional Bearer token authentication can be enabled via the `AUTH_TOKEN`
+environment variable. When set, every request must include an
+`Authorization: Bearer <token>` header.
+
+```bash
+AUTH_TOKEN=my-secret-token go run ./cmd/agent -root /tmp/testdata -pvc my-pvc
+```
+
+Without `AUTH_TOKEN` the agent runs with no authentication and relies on a
+trusted proxy (or the controller) for access control.
+
 ## Build the image
 
 ```bash
