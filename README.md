@@ -91,10 +91,24 @@ cosign verify-attestation ghcr.io/pvc-explorer-operator/pvc-explorer-agent:lates
   --certificate-oidc-issuer https://token.actions.githubusercontent.com
 ```
 
-Downloadable SBOM files are also published:
+Downloadable SBOM files are also published. The Syft-generated SPDX JSON SBOM is
+attached to the image as an OCI artifact via `cosign attach sbom`:
 
-- For `:dev` updates: as a workflow artifact in the corresponding `OCI Image` run
-- For stable releases: as a `sbom-<tag>.spdx.json` asset attached to the GitHub Release
+```bash
+# Download the SBOM for the latest release
+cosign download sbom ghcr.io/pvc-explorer-operator/pvc-explorer-agent:latest
+
+# Download the SBOM for the dev image
+cosign download sbom ghcr.io/pvc-explorer-operator/pvc-explorer-agent:dev
+
+# Download the SBOM for a specific release
+cosign download sbom ghcr.io/pvc-explorer-operator/pvc-explorer-agent:v0.1.0
+```
+
+Additionally:
+
+- For stable releases: the same `sbom-<tag>.spdx.json` file is also attached as a
+  release asset on the GitHub Release page for direct download.
 
 ### Release process
 
