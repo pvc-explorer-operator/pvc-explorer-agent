@@ -17,6 +17,8 @@ updates:
       - dependency-type: "all"
 
   # Enable version updates for Docker base images
+  # Docker images are pinned by SHA digest for immutability and security.
+  # Dependabot updates both the tag and digest together when a newer version is available.
   - package-ecosystem: "docker"
     directory: "/"
     schedule:
@@ -29,3 +31,17 @@ updates:
     labels:
       - "dependencies"
       - "docker"
+
+  # Enable version updates for GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "04:00"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "pvc-explorer-operator/maintainers"
+    labels:
+      - "dependencies"
+      - "github-actions"
