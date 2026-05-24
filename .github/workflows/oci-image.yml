@@ -102,12 +102,19 @@ jobs:
           path: sbom-dev-${{ github.sha }}.spdx.json
           if-no-files-found: error
 
+      - name: Attach dev SBOM to image with cosign
+        env:
+          IMAGE_REF: ghcr.io/${{ github.repository }}@${{ steps.build.outputs.digest }}
+        run: |
+          cosign attach sbom --sbom sbom-dev-${{ github.sha }}.spdx.json "$IMAGE_REF"
+
       - name: Add dev SBOM summary
         run: |
           {
             echo "### OCI Image Output"
             echo ""
             echo "- Image digest: \`ghcr.io/${{ github.repository }}@${{ steps.build.outputs.digest }}\`"
+            echo "- Download SBOM: \`cosign download sbom ghcr.io/${{ github.repository }}:dev\`"
             echo "- SBOM artifact: \`sbom-dev-${{ github.sha }}\`"
           } >> "$GITHUB_STEP_SUMMARY"
 
@@ -184,6 +191,12 @@ jobs:
           path: sbom-${{ github.event.release.tag_name }}.spdx.json
           if-no-files-found: error
 
+      - name: Attach release SBOM to image with cosign
+        env:
+          IMAGE_REF: ghcr.io/${{ github.repository }}@${{ steps.build.outputs.digest }}
+        run: |
+          cosign attach sbom --sbom sbom-${{ github.event.release.tag_name }}.spdx.json "$IMAGE_REF"
+
       - name: Attach SBOM to GitHub release assets
         uses: softprops/action-gh-release@v2
         with:
@@ -196,5 +209,6 @@ jobs:
             echo "### OCI Image Output"
             echo ""
             echo "- Image digest: \`ghcr.io/${{ github.repository }}@${{ steps.build.outputs.digest }}\`"
+            echo "- Download SBOM: \`cosign download sbom ghcr.io/${{ github.repository }}:${{ github.event.release.tag_name }}\`"
             echo "- Release asset: \`sbom-${{ github.event.release.tag_name }}.spdx.json\`"
           } >> "$GITHUB_STEP_SUMMARY"
