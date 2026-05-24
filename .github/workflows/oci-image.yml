@@ -20,7 +20,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
   id-token: write
   packages: write
 
@@ -89,6 +89,28 @@ jobs:
         run: |
           cosign sign ghcr.io/${{ github.repository }}@${{ steps.build.outputs.digest }}
 
+      - name: Generate dev SBOM file
+        env:
+          IMAGE_REF: ghcr.io/${{ github.repository }}@${{ steps.build.outputs.digest }}
+        run: |
+          docker run --rm -v "$PWD:/work" -w /work anchore/syft:latest "$IMAGE_REF" -o spdx-json=sbom-dev-${{ github.sha }}.spdx.json
+
+      - name: Upload dev SBOM artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom-dev-${{ github.sha }}
+          path: sbom-dev-${{ github.sha }}.spdx.json
+          if-no-files-found: error
+
+      - name: Add dev SBOM summary
+        run: |
+          {
+            echo "### OCI Image Output"
+            echo ""
+            echo "- Image digest: \`ghcr.io/${{ github.repository }}@${{ steps.build.outputs.digest }}\`"
+            echo "- SBOM artifact: \`sbom-dev-${{ github.sha }}\`"
+          } >> "$GITHUB_STEP_SUMMARY"
+
   publish-release:
     if: github.event_name == 'release'
     runs-on: ubuntu-latest
@@ -148,3 +170,31 @@ jobs:
           COSIGN_YES: "true"
         run: |
           cosign sign ghcr.io/${{ github.repository }}@${{ steps.build.outputs.digest }}
+
+      - name: Generate release SBOM file
+        env:
+          IMAGE_REF: ghcr.io/${{ github.repository }}@${{ steps.build.outputs.digest }}
+        run: |
+          docker run --rm -v "$PWD:/work" -w /work anchore/syft:latest "$IMAGE_REF" -o spdx-json=sbom-${{ github.event.release.tag_name }}.spdx.json
+
+      - name: Upload release SBOM workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom-${{ github.event.release.tag_name }}
+          path: sbom-${{ github.event.release.tag_name }}.spdx.json
+          if-no-files-found: error
+
+      - name: Attach SBOM to GitHub release assets
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.event.release.tag_name }}
+          files: sbom-${{ github.event.release.tag_name }}.spdx.json
+
+      - name: Add release SBOM summary
+        run: |
+          {
+            echo "### OCI Image Output"
+            echo ""
+            echo "- Image digest: \`ghcr.io/${{ github.repository }}@${{ steps.build.outputs.digest }}\`"
+            echo "- Release asset: \`sbom-${{ github.event.release.tag_name }}.spdx.json\`"
+          } >> "$GITHUB_STEP_SUMMARY"

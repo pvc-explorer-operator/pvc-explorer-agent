@@ -75,7 +75,8 @@ Use `--prerelease` if needed.
 
 1. Open the Actions tab and confirm the `OCI Image` workflow succeeded.
 2. Confirm the published tags in GHCR.
-3. Verify the signature:
+3. Download the `sbom-<tag>.spdx.json` release asset from the GitHub Release page.
+4. Verify the signature:
 
 ```bash
 cosign verify ghcr.io/pvc-explorer-operator/pvc-explorer-agent:v0.1.0 \
@@ -104,3 +105,5 @@ cosign verify-attestation ghcr.io/pvc-explorer-operator/pvc-explorer-agent:v0.1.
 ## Manual dev image refresh
 
 You can trigger the workflow manually with `workflow_dispatch` if you need to republish the mutable `:dev` image without creating a release.
+
+For `:dev` publishes, the generated SBOM file is available as a workflow artifact in the corresponding `OCI Image` run.

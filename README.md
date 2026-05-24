@@ -91,6 +91,11 @@ cosign verify-attestation ghcr.io/pvc-explorer-operator/pvc-explorer-agent:lates
   --certificate-oidc-issuer https://token.actions.githubusercontent.com
 ```
 
+Downloadable SBOM files are also published:
+
+- For `:dev` updates: as a workflow artifact in the corresponding `OCI Image` run
+- For stable releases: as a `sbom-<tag>.spdx.json` asset attached to the GitHub Release
+
 ### Release process
 
 1. Merge the release-ready changes into `main`.
