@@ -20,6 +20,7 @@ on:
   workflow_dispatch:
 
 permissions:
+  actions: write
   contents: write
   id-token: write
   packages: write
@@ -96,11 +97,46 @@ jobs:
           docker run --rm -v "$PWD:/work" -w /work anchore/syft:latest "$IMAGE_REF" -o spdx-json=sbom-dev-${{ github.sha }}.spdx.json
 
       - name: Upload dev SBOM artifact
+        id: upload-dev-sbom
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: sbom-dev-${{ github.sha }}
           path: sbom-dev-${{ github.sha }}.spdx.json
           if-no-files-found: error
+
+      - name: Prune old dev SBOM artifacts
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CURRENT_ARTIFACT_ID: ${{ steps.upload-dev-sbom.outputs.artifact-id }}
+        run: |
+          gh api \
+            -H "Accept: application/vnd.github+json" \
+            "/repos/${{ github.repository }}/actions/artifacts?per_page=100" \
+            --paginate \
+            --jq '.artifacts[] | select(.name | startswith("sbom-dev-")) | select(.id != (env.CURRENT_ARTIFACT_ID | tonumber)) | .id' \
+            | while read -r artifact_id; do
+                if [ -n "$artifact_id" ]; then
+                  gh api --method DELETE "/repos/${{ github.repository }}/actions/artifacts/$artifact_id" >/dev/null
+                fi
+              done
+
+      - name: Prune old dev OCI images
+        env:
+          GH_TOKEN: ${{ github.token }}
+          OWNER: ${{ github.repository_owner }}
+          PACKAGE_NAME: ${{ github.event.repository.name }}
+          CURRENT_DIGEST: ${{ steps.build.outputs.digest }}
+        run: |
+          gh api \
+            -H "Accept: application/vnd.github+json" \
+            "/orgs/${OWNER}/packages/container/${PACKAGE_NAME}/versions?per_page=100" \
+            --paginate \
+            --jq '.[] | select(.metadata.container.tags != null) | select([.metadata.container.tags[] | startswith("dev-")] | any) | select(.name != env.CURRENT_DIGEST) | .id' \
+            | while read -r version_id; do
+                if [ -n "$version_id" ]; then
+                  gh api --method DELETE "/orgs/${OWNER}/packages/container/${PACKAGE_NAME}/versions/$version_id" >/dev/null
+                fi
+              done
 
       - name: Attach dev SBOM to image with cosign
         env:
