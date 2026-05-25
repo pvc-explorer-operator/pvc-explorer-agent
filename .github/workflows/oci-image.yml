@@ -16,9 +16,6 @@ on:
       - internal/**
       - ui/**
       - .github/workflows/oci-image.yml
-  release:
-    types:
-      - published
   workflow_dispatch:
 
 permissions:
@@ -32,6 +29,7 @@ concurrency:
 
 jobs:
   create-release-on-tag:
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
     steps:
       - name: Check out source
@@ -40,8 +38,16 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create "${GITHUB_REF#refs/tags/}" --title "Release ${GITHUB_REF#refs/tags/}" --notes "" --latest --target ${{ github.sha }} || \
-          gh release edit "${GITHUB_REF#refs/tags/}" --title "Release ${GITHUB_REF#refs/tags/}" --notes "" --latest --target ${{ github.sha }}
+          tag="${GITHUB_REF#refs/tags/}"
+          title="Release ${tag}"
+
+          if [[ "${tag}" == *-* ]]; then
+            gh release create "${tag}" --title "${title}" --notes "" --prerelease --target ${{ github.sha }} || \
+            gh release edit "${tag}" --title "${title}" --notes "" --prerelease --latest=false --target ${{ github.sha }}
+          else
+            gh release create "${tag}" --title "${title}" --notes "" --latest --target ${{ github.sha }} || \
+            gh release edit "${tag}" --title "${title}" --notes "" --latest --target ${{ github.sha }}
+          fi
 
   publish-dev:
     if: github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/main'
@@ -165,7 +171,7 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
 
   publish-release:
-    if: github.event_name == 'release' || (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v'))
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
     steps:
       - name: Check out source
@@ -190,8 +196,8 @@ jobs:
         with:
           images: ghcr.io/${{ github.repository }}
           tags: |
-            type=raw,value=${{ github.event.release.tag_name }}
-            type=raw,value=latest,enable=${{ !github.event.release.prerelease }}
+            type=ref,event=tag
+            type=raw,value=latest,enable=${{ !contains(github.ref_name, '-') }}
           labels: |
             org.opencontainers.image.title=pvc-explorer-agent
             org.opencontainers.image.description=Lightweight HTTP file-browser agent for browsing PersistentVolumeClaim contents over a simple REST API.
@@ -228,26 +234,26 @@ jobs:
         env:
           IMAGE_REF: ghcr.io/${{ github.repository }}@${{ steps.build.outputs.digest }}
         run: |
-          docker run --rm -v "$PWD:/work" -w /work anchore/syft:latest "$IMAGE_REF" -o spdx-json=sbom-${{ github.event.release.tag_name }}.spdx.json
+          docker run --rm -v "$PWD:/work" -w /work anchore/syft:latest "$IMAGE_REF" -o spdx-json=sbom-${{ github.ref_name }}.spdx.json
 
       - name: Upload release SBOM workflow artifact
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: sbom-${{ github.event.release.tag_name }}
-          path: sbom-${{ github.event.release.tag_name }}.spdx.json
+          name: sbom-${{ github.ref_name }}
+          path: sbom-${{ github.ref_name }}.spdx.json
           if-no-files-found: error
 
       - name: Attach release SBOM to image with cosign
         env:
           IMAGE_REF: ghcr.io/${{ github.repository }}@${{ steps.build.outputs.digest }}
         run: |
-          cosign attach sbom --sbom sbom-${{ github.event.release.tag_name }}.spdx.json "$IMAGE_REF"
+          cosign attach sbom --sbom sbom-${{ github.ref_name }}.spdx.json "$IMAGE_REF"
 
       - name: Attach SBOM to GitHub release assets
-        uses: softprops/action-gh-release@b4309332981a82ec1c5618f44dd2e27cc8bfbfda # v3
-        with:
-          tag_name: ${{ github.event.release.tag_name }}
-          files: sbom-${{ github.event.release.tag_name }}.spdx.json
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release upload "${GITHUB_REF#refs/tags/}" "sbom-${{ github.ref_name }}.spdx.json" --clobber
 
       - name: Add release SBOM summary
         run: |
@@ -255,6 +261,38 @@ jobs:
             echo "### OCI Image Output"
             echo ""
             echo "- Image digest: \`ghcr.io/${{ github.repository }}@${{ steps.build.outputs.digest }}\`"
-            echo "- Download SBOM: \`cosign download sbom ghcr.io/${{ github.repository }}:${{ github.event.release.tag_name }}\`"
-            echo "- Release asset: \`sbom-${{ github.event.release.tag_name }}.spdx.json\`"
+            echo "- Download SBOM: \`cosign download sbom ghcr.io/${{ github.repository }}:${{ github.ref_name }}\`"
+            echo "- Release asset: \`sbom-${{ github.ref_name }}.spdx.json\`"
           } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Update GitHub release notes
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          TAG: ${{ github.ref_name }}
+          PACKAGE_NAME: ${{ github.event.repository.name }}
+        run: |
+          set -euo pipefail
+
+          previous_tag="$({
+            gh api "/repos/${REPO}/releases?per_page=100" \
+              --jq '[.[] | select(.draft == false and .prerelease == false and .tag_name != env.TAG)][0].tag_name'
+          } || true)"
+
+          {
+            echo "oci image: [ghcr.io/${REPO}:${TAG}](https://github.com/${REPO}/pkgs/container/${PACKAGE_NAME})"
+            echo "sbom: [sbom-${TAG}.spdx.json](https://github.com/${REPO}/releases/download/${TAG}/sbom-${TAG}.spdx.json)"
+            echo ""
+            echo "Changes:"
+            echo "(Generated changes since last non dev release)"
+            echo ""
+
+            if [ -n "${previous_tag}" ] && [ "${previous_tag}" != "null" ]; then
+              gh api "/repos/${REPO}/compare/${previous_tag}...${TAG}" \
+                --jq '.commits[] | "- " + (.commit.message | split("\n")[0])'
+            else
+              echo "- Initial release"
+            fi
+          } > release-notes.md
+
+          gh release edit "${TAG}" --notes-file release-notes.md
