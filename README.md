@@ -9,6 +9,7 @@
 <p align="center">
 	<a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache%202.0-blue.svg" alt="License"></a>
 	<a href="https://go.dev"><img src="https://img.shields.io/badge/go-1.26+-00ADD8.svg" alt="Go"></a>
+	<a href="https://securityscorecards.dev/viewer/?uri=github.com/pvc-explorer-operator/pvc-explorer-agent"><img src="https://api.securityscorecards.dev/projects/github.com/pvc-explorer-operator/pvc-explorer-agent/badge" alt="OpenSSF Scorecard"></a>
 </p>
 
 <p align="center">
