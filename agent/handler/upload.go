@@ -1,3 +1,4 @@
+// Package handler provides HTTP handlers for PVC file operations.
 package handler
 
 import (
@@ -10,10 +11,12 @@ import (
 	"strings"
 )
 
+// UploadResponse is the JSON response for a file upload.
 type UploadResponse struct {
 	Uploaded string `json:"uploaded"`
 }
 
+// UploadHandler returns an HTTP handler that accepts file uploads for the PVC.
 func UploadHandler(root string) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		defer recover500(w)
@@ -28,7 +31,7 @@ func UploadHandler(root string) http.Handler {
 			http.Error(w, `{"error":"bad path"}`, http.StatusBadRequest)
 			return
 		}
-		err = os.MkdirAll(abs, 0755)
+		err = os.MkdirAll(abs, 0750)
 		if err != nil {
 			http.Error(w, `{"error":"internal error"}`, http.StatusInternalServerError)
 			return
@@ -38,22 +41,23 @@ func UploadHandler(root string) http.Handler {
 			http.Error(w, `{"error":"bad upload"}`, http.StatusBadRequest)
 			return
 		}
-		defer file.Close()
+		defer func() { _ = file.Close() }()
 		outPath := filepath.Join(abs, header.Filename)
 		if !strings.HasPrefix(outPath, root) {
 			http.Error(w, `{"error":"bad path"}`, http.StatusBadRequest)
 			return
 		}
+		//nolint:gosec // path validated via strings.HasPrefix(outPath, root)
 		out, err := os.Create(outPath)
 		if err != nil {
 			http.Error(w, `{"error":"internal error"}`, http.StatusInternalServerError)
 			return
 		}
-		defer out.Close()
+		defer func() { _ = out.Close() }()
 		if _, err = io.Copy(out, file); err != nil {
 			http.Error(w, `{"error":"internal error"}`, http.StatusInternalServerError)
 			return
 		}
-		json.NewEncoder(w).Encode(UploadResponse{Uploaded: path.Join(p, header.Filename)})
+		_ = json.NewEncoder(w).Encode(UploadResponse{Uploaded: path.Join(p, header.Filename)})
 	})
 }

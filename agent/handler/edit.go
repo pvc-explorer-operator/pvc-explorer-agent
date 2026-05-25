@@ -1,3 +1,4 @@
+// Package handler provides HTTP handlers for PVC file operations.
 package handler
 
 import (
@@ -8,10 +9,13 @@ import (
 	"path/filepath"
 )
 
+// EditResponse is the JSON response for an edit operation.
 type EditResponse struct {
 	Written string `json:"written"`
 }
 
+// EditHandler returns an HTTP handler that writes (creates or overwrites)
+// a file in the PVC.
 func EditHandler(root string) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		defer recover500(w)
@@ -27,7 +31,7 @@ func EditHandler(root string) http.Handler {
 			return
 		}
 		dir := filepath.Dir(abs)
-		err = os.MkdirAll(dir, 0755)
+		err = os.MkdirAll(dir, 0750)
 		if err != nil {
 			http.Error(w, `{"error":"internal error"}`, http.StatusInternalServerError)
 			return
@@ -37,7 +41,7 @@ func EditHandler(root string) http.Handler {
 			http.Error(w, `{"error":"internal error"}`, http.StatusInternalServerError)
 			return
 		}
-		defer func() { tmp.Close(); os.Remove(tmp.Name()) }()
+		defer func() { _ = tmp.Close(); _ = os.Remove(tmp.Name()) }()
 		if _, err = io.Copy(tmp, r.Body); err != nil {
 			http.Error(w, `{"error":"internal error"}`, http.StatusInternalServerError)
 			return
@@ -46,6 +50,6 @@ func EditHandler(root string) http.Handler {
 			http.Error(w, `{"error":"internal error"}`, http.StatusInternalServerError)
 			return
 		}
-		json.NewEncoder(w).Encode(EditResponse{Written: p})
+		_ = json.NewEncoder(w).Encode(EditResponse{Written: p})
 	})
 }

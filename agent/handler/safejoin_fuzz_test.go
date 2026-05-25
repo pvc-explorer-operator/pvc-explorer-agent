@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"context"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -59,7 +60,7 @@ func FuzzFilesHandlerList(f *testing.F) {
 	f.Fuzz(func(t *testing.T, path string) {
 		dir := t.TempDir()
 		h := FilesHandler(dir, func(*http.Request) bool { return false })
-		r := httptest.NewRequest("GET", "/api/files?path="+path, nil)
+		r := httptest.NewRequestWithContext(context.Background(), "GET", "/api/files?path="+path, nil)
 		w := httptest.NewRecorder()
 		h.ServeHTTP(w, r)
 		code := w.Code
@@ -84,7 +85,7 @@ func FuzzEditHandler(f *testing.F) {
 		dir := t.TempDir()
 		os.MkdirAll(filepath.Join(dir, "sub"), 0755)
 		h := EditHandler(dir)
-		r := httptest.NewRequest("PUT", "/api/edit?path="+path, nil)
+		r := httptest.NewRequestWithContext(context.Background(), "PUT", "/api/edit?path="+path, nil)
 		w := httptest.NewRecorder()
 		h.ServeHTTP(w, r)
 		code := w.Code

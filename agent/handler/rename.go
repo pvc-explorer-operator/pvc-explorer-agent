@@ -1,3 +1,4 @@
+// Package handler provides HTTP handlers for PVC file operations.
 package handler
 
 import (
@@ -6,16 +7,19 @@ import (
 	"os"
 )
 
+// RenameRequest is the JSON body for a rename operation.
 type RenameRequest struct {
 	From string `json:"from"`
 	To   string `json:"to"`
 }
 
+// RenameResponse is the JSON response for a rename operation.
 type RenameResponse struct {
 	From string `json:"from"`
 	To   string `json:"to"`
 }
 
+// RenameHandler returns an HTTP handler that renames/moves files in the PVC.
 func RenameHandler(root string) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		defer recover500(w)
@@ -51,6 +55,6 @@ func RenameHandler(root string) http.Handler {
 			http.Error(w, `{"error":"rename failed"}`, http.StatusInternalServerError)
 			return
 		}
-		json.NewEncoder(w).Encode(RenameResponse{From: req.From, To: req.To})
+		_ = json.NewEncoder(w).Encode(RenameResponse(req))
 	})
 }
