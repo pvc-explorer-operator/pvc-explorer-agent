@@ -244,7 +244,7 @@ jobs:
           cosign attach sbom --sbom sbom-${{ github.event.release.tag_name }}.spdx.json "$IMAGE_REF"
 
       - name: Attach SBOM to GitHub release assets
-        uses: softprops/action-gh-release@b430933298a82ec1c5618f44dd2e27cc8bfbfda # v3
+        uses: softprops/action-gh-release@b4309332981a82ec1c5618f44dd2e27cc8bfbfda # v3
         with:
           tag_name: ${{ github.event.release.tag_name }}
           files: sbom-${{ github.event.release.tag_name }}.spdx.json
