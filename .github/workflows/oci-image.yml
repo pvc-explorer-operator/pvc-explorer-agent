@@ -1,19 +1,11 @@
-  create-release-on-tag:
-    if: startsWith(github.ref, 'refs/tags/v')
-    runs-on: ubuntu-latest
-    steps:
-      - name: Create GitHub Release for version tags
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          gh release create "${GITHUB_REF#refs/tags/}" --title "Release ${GITHUB_REF#refs/tags/}" --notes "" --latest --target ${{ github.sha }} || \
-          gh release edit "${GITHUB_REF#refs/tags/}" --title "Release ${GITHUB_REF#refs/tags/}" --notes "" --latest --target ${{ github.sha }}
 name: OCI Image
 
 on:
   push:
     branches:
       - main
+    tags:
+      - v*
     paths:
       - Dockerfile
       - go.mod
@@ -39,8 +31,19 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  create-release-on-tag:
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create GitHub Release for version tags
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${GITHUB_REF#refs/tags/}" --title "Release ${GITHUB_REF#refs/tags/}" --notes "" --latest --target ${{ github.sha }} || \
+          gh release edit "${GITHUB_REF#refs/tags/}" --title "Release ${GITHUB_REF#refs/tags/}" --notes "" --latest --target ${{ github.sha }}
+
   publish-dev:
-    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    if: github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - name: Check out source
