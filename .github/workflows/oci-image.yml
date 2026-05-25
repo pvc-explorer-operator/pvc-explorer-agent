@@ -20,7 +20,6 @@ on:
   workflow_dispatch:
 
 permissions:
-  actions: write
   contents: write
   id-token: write
   packages: write
@@ -90,41 +89,6 @@ jobs:
         run: |
           docker run --rm -v "$PWD:/work" -w /work anchore/syft:latest "$IMAGE_REF" -o spdx-json=sbom-dev-${{ github.sha }}.spdx.json
 
-      - name: Upload dev SBOM artifact
-        id: upload-dev-sbom
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        with:
-          name: sbom-dev-${{ github.sha }}
-          path: sbom-dev-${{ github.sha }}.spdx.json
-          if-no-files-found: error
-
-      - name: Prune old dev SBOM artifacts
-        env:
-          GH_TOKEN: ${{ github.token }}
-          CURRENT_ARTIFACT_ID: ${{ steps.upload-dev-sbom.outputs.artifact-id }}
-        run: |
-          set -o pipefail
-
-          mapfile -t stale_artifacts < <(
-            gh api \
-              -H "Accept: application/vnd.github+json" \
-              "/repos/${{ github.repository }}/actions/artifacts?per_page=100" \
-              --paginate \
-              --jq '.artifacts[] | select(.name | startswith("sbom-dev-")) | select(.id != (env.CURRENT_ARTIFACT_ID | tonumber)) | [.id, .name] | @tsv'
-          )
-
-          echo "Found ${#stale_artifacts[@]} stale dev SBOM artifact(s)"
-          deleted=0
-          for artifact in "${stale_artifacts[@]}"; do
-            [ -z "$artifact" ] && continue
-            artifact_id="${artifact%%$'\t'*}"
-            artifact_name="${artifact#*$'\t'}"
-            echo "Deleting artifact ID ${artifact_id} (${artifact_name})"
-            gh api --method DELETE "/repos/${{ github.repository }}/actions/artifacts/${artifact_id}" >/dev/null
-            deleted=$((deleted + 1))
-          done
-          echo "Deleted ${deleted} stale dev SBOM artifact(s)"
-
       - name: Prune old dev OCI images
         env:
           GH_TOKEN: ${{ github.token }}
@@ -143,6 +107,7 @@ jobs:
                 | select(.name != env.CURRENT_DIGEST)
                 | select(
                     ((.metadata.container.tags // []) | map(startswith("dev-")) | any)
+                    or ((.metadata.container.tags // []) | map(test("\\.(sig|sbom)$")) | any)
                     or (((.metadata.container.tags // []) | length) == 0)
                   )
                 | [.id, .name, ((.metadata.container.tags // []) | join(","))]
@@ -183,7 +148,6 @@ jobs:
             echo ""
             echo "- Image digest: \`ghcr.io/${{ github.repository }}@${{ steps.build.outputs.digest }}\`"
             echo "- Download SBOM: \`cosign download sbom ghcr.io/${{ github.repository }}:dev\`"
-            echo "- SBOM artifact: \`sbom-dev-${{ github.sha }}\`"
           } >> "$GITHUB_STEP_SUMMARY"
 
   publish-release:
