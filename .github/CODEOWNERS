@@ -5,21 +5,21 @@
 * @ricardoleal
 
 # Go source code and module files
-*.go @ricardoleal @AnaRaro @edramos-97
-go.mod @ricardoleal @AnaRaro @edramos-97
-go.sum @ricardoleal @AnaRaro @edramos-97
-Makefile @ricardoleal @AnaRaro @edramos-97
+*.go @ricardoleal
+go.mod @ricardoleal
+go.sum @ricardoleal
+Makefile @ricardoleal
 
 # CI/CD and GitHub configuration
-.github/ @ricardoleal @AnaRaro @edramos-97
+.github/ @ricardoleal
 
 # Docker
-Dockerfile @ricardoleal @AnaRaro @edramos-97
-Dockerfile.* @ricardoleal @AnaRaro @edramos-97
+Dockerfile @ricardoleal
+Dockerfile.* @ricardoleal
 
 # Documentation
-docs/ @ricardoleal @AnaRaro @edramos-97
-README.md @ricardoleal @AnaRaro @edramos-97
+docs/ @ricardoleal
+README.md @ricardoleal
 
 # Security and compliance
 SECURITY.md @ricardoleal
