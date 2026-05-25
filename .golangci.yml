@@ -1,0 +1,54 @@
+# golangci-lint configuration
+# https://golangci-lint.run/usage/configuration/
+
+run:
+  timeout: 5m
+  modules-download-mode: readonly
+
+linters:
+  enable:
+    - errcheck
+    - gosimple
+    - govet
+    - ineffassign
+    - staticcheck
+    - unused
+    - gosec
+    - misspell
+    - revive
+    - bodyclose
+    - noctx
+    - prealloc
+  disable:
+    - exhaustruct
+    - exhaustivestruct
+
+linters-settings:
+  errcheck:
+    check-type-assertions: true
+    check-blank: false
+  gosec:
+    excludes:
+      - G115 # integer overflow conversions (false positives in Go 1.26)
+  revive:
+    rules:
+      - name: exported
+        severity: warning
+        disabled: false
+  staticcheck:
+    checks:
+      - all
+      - '-SA1019' # allow deprecated identifiers
+
+issues:
+  exclude-rules:
+    - path: _test\.go
+      linters:
+        - errcheck
+        - gosec
+        - bodyclose
+    - path: cmd/agent/main\.go
+      linters:
+        - errcheck
+  max-issues-per-linter: 0
+  max-same-issues: 0
