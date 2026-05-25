@@ -23,33 +23,33 @@ linters:
     - prealloc
   disable:
     - exhaustruct
-
-linters-settings:
-  errcheck:
-    check-type-assertions: true
-    check-blank: false
-  gosec:
-    excludes:
-      - G115 # integer overflow conversions (false positives in Go 1.26)
-  revive:
+  settings:
+    errcheck:
+      check-type-assertions: true
+      check-blank: false
+    gosec:
+      excludes:
+        - G115 # integer overflow conversions (false positives in Go 1.26)
+    revive:
+      rules:
+        - name: exported
+          severity: warning
+          disabled: false
+    staticcheck:
+      checks:
+        - all
+        - '-SA1019' # allow deprecated identifiers
+  exclusions:
     rules:
-      - name: exported
-        severity: warning
-        disabled: false
-  staticcheck:
-    checks:
-      - all
-      - '-SA1019' # allow deprecated identifiers
+      - path: _test\.go
+        linters:
+          - errcheck
+          - gosec
+          - bodyclose
+      - path: cmd/agent/main\.go
+        linters:
+          - errcheck
 
 issues:
-  exclude-rules:
-    - path: _test\.go
-      linters:
-        - errcheck
-        - gosec
-        - bodyclose
-    - path: cmd/agent/main\.go
-      linters:
-        - errcheck
   max-issues-per-linter: 0
   max-same-issues: 0
