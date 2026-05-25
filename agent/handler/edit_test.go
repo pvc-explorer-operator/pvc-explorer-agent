@@ -15,7 +15,7 @@ func TestEditHandler(t *testing.T) {
 
 	h := EditHandler(dir)
 	body := bytes.NewBufferString("new content")
-	r := httptest.NewRequest("PUT", "/api/edit?path=foo.txt", body)
+	r := httptest.NewRequestWithContext(context.Background(), "PUT", "/api/edit?path=foo.txt", body)
 	w := httptest.NewRecorder()
 	h.ServeHTTP(w, r)
 	if w.Code != 200 {

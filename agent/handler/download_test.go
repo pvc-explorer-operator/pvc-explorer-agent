@@ -16,7 +16,7 @@ func TestDownloadHandler_File(t *testing.T) {
 	os.WriteFile(filePath, []byte("hello world"), 0644)
 
 	h := DownloadHandler(dir)
-	r := httptest.NewRequest("GET", "/api/download?path=foo.txt", nil)
+	r := httptest.NewRequestWithContext(context.Background(), "GET", "/api/download?path=foo.txt", nil)
 	w := httptest.NewRecorder()
 	h.ServeHTTP(w, r)
 	if w.Code != 200 {
@@ -37,7 +37,7 @@ func TestDownloadHandler_ZipDir(t *testing.T) {
 	os.WriteFile(filepath.Join(dir, "subdir", "bar.txt"), []byte("def"), 0644)
 
 	h := DownloadHandler(dir)
-	r := httptest.NewRequest("GET", "/api/download?path=", nil)
+	r := httptest.NewRequestWithContext(context.Background(), "GET", "/api/download?path=", nil)
 	w := httptest.NewRecorder()
 	h.ServeHTTP(w, r)
 	if w.Code != 200 {
