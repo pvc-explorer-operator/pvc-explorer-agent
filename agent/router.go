@@ -1,3 +1,4 @@
+// Package agent provides the core agent logic for PVC file operations.
 package agent
 
 import (
@@ -6,6 +7,7 @@ import (
 	"github.com/pvc-explorer-operator/pvc-explorer-agent/agent/handler"
 )
 
+// RegisterRoutes registers all PVC file operation routes on the provided mux.
 func RegisterRoutes(mux *http.ServeMux, root string, isReadonly func(*http.Request) bool) {
 	mux.Handle("/api/space", handler.SpaceHandler(root))
 	mux.Handle("/api/files", handler.FilesHandler(root, isReadonly))

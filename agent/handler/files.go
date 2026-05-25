@@ -1,3 +1,4 @@
+// Package handler provides HTTP handlers for PVC file operations.
 package handler
 
 import (
@@ -11,6 +12,7 @@ import (
 	"strings"
 )
 
+// FileEntry represents a single file or directory entry in a listing.
 type FileEntry struct {
 	Name    string `json:"name"`
 	Size    int64  `json:"size"`
@@ -18,19 +20,24 @@ type FileEntry struct {
 	ModTime string `json:"modTime"`
 }
 
+// ListResponse is the JSON response for a directory listing.
 type ListResponse struct {
 	Path    string      `json:"path"`
 	Entries []FileEntry `json:"entries"`
 }
 
+// DeleteResponse is the JSON response for a delete operation.
 type DeleteResponse struct {
 	Deleted string `json:"deleted"`
 }
 
+// ClearResponse is the JSON response for a clear operation.
 type ClearResponse struct {
 	Cleared bool `json:"cleared"`
 }
 
+// FilesHandler returns an HTTP handler that lists files and handles
+// GET (list) and DELETE (remove) requests.
 func FilesHandler(root string, isReadonly func(*http.Request) bool) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		defer recover500(w)
@@ -67,7 +74,7 @@ func FilesHandler(root string, isReadonly func(*http.Request) bool) http.Handler
 					ModTime: info.ModTime().UTC().Format("2006-01-02T15:04:05Z07:00"),
 				})
 			}
-			json.NewEncoder(w).Encode(resp)
+			_ = json.NewEncoder(w).Encode(resp)
 		case http.MethodDelete:
 			if isReadonly(r) {
 				http.Error(w, `{"error":"read-only mode"}`, http.StatusForbidden)
@@ -83,13 +90,14 @@ func FilesHandler(root string, isReadonly func(*http.Request) bool) http.Handler
 				}
 				return
 			}
-			json.NewEncoder(w).Encode(DeleteResponse{Deleted: p})
+			_ = json.NewEncoder(w).Encode(DeleteResponse{Deleted: p})
 		default:
 			http.Error(w, `{"error":"method not allowed"}`, http.StatusMethodNotAllowed)
 		}
 	})
 }
 
+// ClearHandler returns an HTTP handler that removes all files under root.
 func ClearHandler(root string) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		defer recover500(w)
@@ -107,7 +115,7 @@ func ClearHandler(root string) http.Handler {
 			// best-effort removal; ignore errors per-file
 			_ = os.RemoveAll(filepath.Join(root, entry.Name()))
 		}
-		json.NewEncoder(w).Encode(ClearResponse{Cleared: true})
+		_ = json.NewEncoder(w).Encode(ClearResponse{Cleared: true})
 	})
 }
 
@@ -123,6 +131,6 @@ func safeJoin(root, rel string) (string, error) {
 func recover500(w http.ResponseWriter) {
 	if r := recover(); r != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(`{"error":"internal error"}`))
+		_, _ = w.Write([]byte(`{"error":"internal error"}`))
 	}
 }

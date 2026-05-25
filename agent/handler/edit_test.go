@@ -2,6 +2,7 @@ package handler
 
 import (
 	"bytes"
+	"context"
 	"net/http/httptest"
 	"os"
 	"path/filepath"
