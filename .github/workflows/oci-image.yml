@@ -109,16 +109,27 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           CURRENT_ARTIFACT_ID: ${{ steps.upload-dev-sbom.outputs.artifact-id }}
         run: |
-          gh api \
-            -H "Accept: application/vnd.github+json" \
-            "/repos/${{ github.repository }}/actions/artifacts?per_page=100" \
-            --paginate \
-            --jq '.artifacts[] | select(.name | startswith("sbom-dev-")) | select(.id != (env.CURRENT_ARTIFACT_ID | tonumber)) | .id' \
-            | while read -r artifact_id; do
-                if [ -n "$artifact_id" ]; then
-                  gh api --method DELETE "/repos/${{ github.repository }}/actions/artifacts/$artifact_id" >/dev/null
-                fi
-              done
+          set -o pipefail
+
+          mapfile -t stale_artifacts < <(
+            gh api \
+              -H "Accept: application/vnd.github+json" \
+              "/repos/${{ github.repository }}/actions/artifacts?per_page=100" \
+              --paginate \
+              --jq '.artifacts[] | select(.name | startswith("sbom-dev-")) | select(.id != (env.CURRENT_ARTIFACT_ID | tonumber)) | [.id, .name] | @tsv'
+          )
+
+          echo "Found ${#stale_artifacts[@]} stale dev SBOM artifact(s)"
+          deleted=0
+          for artifact in "${stale_artifacts[@]}"; do
+            [ -z "$artifact" ] && continue
+            artifact_id="${artifact%%$'\t'*}"
+            artifact_name="${artifact#*$'\t'}"
+            echo "Deleting artifact ID ${artifact_id} (${artifact_name})"
+            gh api --method DELETE "/repos/${{ github.repository }}/actions/artifacts/${artifact_id}" >/dev/null
+            deleted=$((deleted + 1))
+          done
+          echo "Deleted ${deleted} stale dev SBOM artifact(s)"
 
       - name: Prune old dev OCI images
         env:
@@ -127,16 +138,37 @@ jobs:
           PACKAGE_NAME: ${{ github.event.repository.name }}
           CURRENT_DIGEST: ${{ steps.build.outputs.digest }}
         run: |
-          gh api \
-            -H "Accept: application/vnd.github+json" \
-            "/orgs/${OWNER}/packages/container/${PACKAGE_NAME}/versions?per_page=100" \
-            --paginate \
-            --jq '.[] | select(.metadata.container.tags != null) | select([.metadata.container.tags[] | startswith("dev-")] | any) | select(.name != env.CURRENT_DIGEST) | .id' \
-            | while read -r version_id; do
-                if [ -n "$version_id" ]; then
-                  gh api --method DELETE "/orgs/${OWNER}/packages/container/${PACKAGE_NAME}/versions/$version_id" >/dev/null
-                fi
-              done
+          set -o pipefail
+
+          mapfile -t stale_versions < <(
+            gh api \
+              -H "Accept: application/vnd.github+json" \
+              "/orgs/${OWNER}/packages/container/${PACKAGE_NAME}/versions?per_page=100" \
+              --paginate \
+              --jq '.[]
+                | select(.name != env.CURRENT_DIGEST)
+                | select(
+                    (.metadata.container.tags != null and ([.metadata.container.tags[] | startswith("dev-")] | any))
+                    or (.metadata.container.tags == null)
+                  )
+                | [.id, .name, ((.metadata.container.tags // []) | join(","))]
+                | @tsv'
+          )
+
+          echo "Found ${#stale_versions[@]} stale OCI package version(s)"
+          deleted=0
+          for version in "${stale_versions[@]}"; do
+            [ -z "$version" ] && continue
+            version_id="${version%%$'\t'*}"
+            rest="${version#*$'\t'}"
+            version_name="${rest%%$'\t'*}"
+            version_tags="${rest#*$'\t'}"
+            [ "$version_tags" = "$rest" ] && version_tags="<none>"
+            echo "Deleting package version ID ${version_id} (name=${version_name}, tags=${version_tags})"
+            gh api --method DELETE "/orgs/${OWNER}/packages/container/${PACKAGE_NAME}/versions/${version_id}" >/dev/null
+            deleted=$((deleted + 1))
+          done
+          echo "Deleted ${deleted} stale OCI package version(s)"
 
       - name: Attach dev SBOM to image with cosign
         env:
