@@ -32,7 +32,6 @@ concurrency:
 
 jobs:
   create-release-on-tag:
-    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
     steps:
       - name: Check out source
@@ -165,15 +164,9 @@ jobs:
             echo "- Download SBOM: \`cosign download sbom ghcr.io/${{ github.repository }}:dev\`"
           } >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Create or update dev GitHub Release
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          gh release create dev --title "Development Build" --notes "" --prerelease --latest --target ${{ github.sha }} || \
-          gh release edit dev --title "Development Build" --notes "" --prerelease --latest --target ${{ github.sha }}
 
   publish-release:
-    if: github.event_name == 'release'
+    if: github.event_name == 'release' || (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v'))
     runs-on: ubuntu-latest
     steps:
       - name: Check out source
