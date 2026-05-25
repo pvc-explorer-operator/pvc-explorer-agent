@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"path/filepath"
 	"sync"
 	"time"
 
@@ -63,6 +64,10 @@ func (s *modeState) setForceRW(v bool) {
 	s.mu.Unlock()
 }
 
+func resolveRoot(root string) (string, error) {
+	return filepath.Abs(root)
+}
+
 func main() {
 	var root, pvcName, clusterName, uiOverlay string
 	flag.StringVar(&root, "root", "/data", "Root directory to serve")
@@ -70,6 +75,12 @@ func main() {
 	flag.StringVar(&clusterName, "cluster", "", "Cluster name shown in UI")
 	flag.StringVar(&	uiOverlay, "ui-overlay", "/config", "Directory of UI files to serve instead of embedded defaults")
 	flag.Parse()
+
+	var err error
+	root, err = resolveRoot(root)
+	if err != nil {
+		log.Fatalf("resolve root %q: %v", root, err)
+	}
 
 	namespace := os.Getenv("POD_NAMESPACE")
 	podName := os.Getenv("POD_NAME")

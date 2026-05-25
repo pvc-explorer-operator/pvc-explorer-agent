@@ -5,6 +5,9 @@ BINDIR ?= bin
 DISTDIR ?= dist
 MODULE ?= github.com/pvc-explorer-operator/pvc-explorer-agent
 IMAGE ?= pvc-explorer-agent:dev
+ROOT ?= /tmp/testdata
+PVC ?= my-pvc
+RUN_ARGS ?=
 
 .PHONY: help
 help: ## Show available targets.
@@ -21,6 +24,15 @@ vet: ## Run go vet.
 .PHONY: test
 test: ## Run go test.
 	go test ./...
+
+.PHONY: test-agent
+test-agent: ## Run the agent test and build checks used for dependency bumps.
+	go test ./...
+	go build -o /tmp/pvc-explorer-agent ./cmd/agent
+
+.PHONY: run-agent
+run-agent: ## Run the agent locally with configurable args.
+	AUTH_TOKEN="$(AUTH_TOKEN)" go run ./cmd/agent -root $(ROOT) -pvc $(PVC) $(RUN_ARGS)
 
 .PHONY: build-agent
 build-agent: ## Build the agent binary.

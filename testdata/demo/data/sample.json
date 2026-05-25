@@ -1,0 +1,8 @@
+{
+  "cluster": "local-dev",
+  "pvc": "demo-pvc",
+  "items": [
+    {"name": "report.csv", "size": 1280},
+    {"name": "notes/welcome.txt", "size": 196}
+  ]
+}

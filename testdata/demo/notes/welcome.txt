@@ -1,0 +1,8 @@
+Welcome to the pvc-explorer-agent demo dataset.
+
+Try these actions in the UI:
+- browse nested directories
+- open and edit this file
+- upload a new file
+- rename a file or folder
+- delete a file you no longer need

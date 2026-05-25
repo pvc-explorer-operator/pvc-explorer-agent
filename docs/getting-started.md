@@ -3,10 +3,23 @@
 ## Standalone mode
 
 ```bash
-go run ./cmd/agent -root /tmp/testdata -pvc my-pvc
+make run-agent ROOT=./testdata/demo PVC=demo-pvc
 ```
 
+The repository includes a small checked-in dataset in `./testdata/demo` for local manual testing.
+It includes nested directories plus text, YAML, JSON, CSV, and log files.
+
 The default listener is `:8081`.
+
+## Manual test flow
+
+After starting the agent, open <http://localhost:8081/> and exercise a few common actions against the demo tree:
+
+- Browse `notes/`, `config/`, `data/`, and `logs/`
+- Open and edit `notes/welcome.txt`
+- Preview structured files such as `config/app.yaml`, `data/sample.json`, and `data/report.csv`
+- Download `logs/agent.log`
+- Upload a temporary file, rename it, then delete it
 
 ### Token authentication
 
@@ -15,7 +28,7 @@ environment variable. When set, every request must include an
 `Authorization: Bearer <token>` header.
 
 ```bash
-AUTH_TOKEN=my-secret-token go run ./cmd/agent -root /tmp/testdata -pvc my-pvc
+AUTH_TOKEN=my-secret-token make run-agent ROOT=./testdata/demo PVC=demo-pvc
 ```
 
 Without `AUTH_TOKEN` the agent runs with no authentication and relies on a

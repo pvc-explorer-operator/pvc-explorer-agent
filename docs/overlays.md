@@ -11,7 +11,7 @@ Overlay images are for local or downstream builds only. This project does not bu
 You can run the agent directly and point it to an overlay directory.
 
 ```bash
-go run ./cmd/agent -root /tmp/testdata -ui-overlay ./overlays/mycompany
+make run-agent ROOT=./testdata/demo PVC=demo-pvc RUN_ARGS='-ui-overlay ./overlays/mycompany'
 ```
 
 Then open:

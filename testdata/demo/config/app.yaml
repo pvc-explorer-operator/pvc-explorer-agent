@@ -1,0 +1,8 @@
+app:
+  name: pvc-explorer-agent
+  mode: demo
+  listen: :8081
+features:
+  edit: true
+  upload: true
+  download: true

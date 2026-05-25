@@ -50,8 +50,11 @@ For CRA, open source security, and license compliance notes, see [docs/CRA_COMPL
 ### Quick start
 
 ```bash
-go run ./cmd/agent -root /tmp/testdata -pvc my-pvc
+make run-agent ROOT=./testdata/demo PVC=demo-pvc
 ```
+
+The repository includes a small demo dataset in `./testdata/demo` for local UI and API testing.
+It includes nested directories plus text, YAML, JSON, CSV, and log files.
 
 ## Container Images
 
