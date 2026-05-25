@@ -1,0 +1,31 @@
+name: Fuzzing
+
+on:
+  schedule:
+    - cron: '30 5 * * 1' # weekly on Monday
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  fuzz:
+    name: Fuzz
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        target:
+          - FuzzSafeJoin
+          - FuzzFilesHandlerList
+          - FuzzEditHandler
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: stable
+      - name: Run fuzz test
+        run: |
+          go test -fuzz=${{ matrix.target }} -fuzztime=5m ./agent/handler/
+        env:
+          GOTOOLCHAIN: go
