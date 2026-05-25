@@ -9,7 +9,7 @@ import (
 func TestSpaceHandler(t *testing.T) {
 	dir := t.TempDir()
 	h := SpaceHandler(dir)
-	r := httptest.NewRequest("GET", "/api/space", nil)
+	r := httptest.NewRequestWithContext(context.Background(), "GET", "/api/space", nil)
 	w := httptest.NewRecorder()
 	h.ServeHTTP(w, r)
 	if w.Code != 200 {

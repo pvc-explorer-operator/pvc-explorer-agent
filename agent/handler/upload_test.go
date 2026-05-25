@@ -22,7 +22,7 @@ func TestUploadHandler(t *testing.T) {
 	w.Close()
 
 	h := UploadHandler(dir)
-	r := httptest.NewRequest("POST", "/api/upload?path=", buf)
+	r := httptest.NewRequestWithContext(context.Background(), "POST", "/api/upload?path=", buf)
 	r.Header.Set("Content-Type", w.FormDataContentType())
 	resp := httptest.NewRecorder()
 	h.ServeHTTP(resp, r)

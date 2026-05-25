@@ -16,7 +16,7 @@ func TestFilesHandler_ListAndDelete(t *testing.T) {
 	os.WriteFile(filepath.Join(dir, "subdir", "bar.txt"), []byte("def"), 0644)
 
 	h := FilesHandler(dir, func(*http.Request) bool { return false })
-	r := httptest.NewRequest("GET", "/api/files?path=", nil)
+	r := httptest.NewRequestWithContext(context.Background(), "GET", "/api/files?path=", nil)
 	w := httptest.NewRecorder()
 	h.ServeHTTP(w, r)
 	if w.Code != 200 {
@@ -31,7 +31,7 @@ func TestFilesHandler_ListAndDelete(t *testing.T) {
 	}
 
 	// Test delete file
-	r = httptest.NewRequest("DELETE", "/api/files?path=foo.txt", nil)
+	r = httptest.NewRequestWithContext(context.Background(), "DELETE", "/api/files?path=foo.txt", nil)
 	w = httptest.NewRecorder()
 	h.ServeHTTP(w, r)
 	if w.Code != 200 {
@@ -42,7 +42,7 @@ func TestFilesHandler_ListAndDelete(t *testing.T) {
 	}
 
 	// Test delete dir
-	r = httptest.NewRequest("DELETE", "/api/files?path=subdir", nil)
+	r = httptest.NewRequestWithContext(context.Background(), "DELETE", "/api/files?path=subdir", nil)
 	w = httptest.NewRecorder()
 	h.ServeHTTP(w, r)
 	if w.Code != 200 {
@@ -60,7 +60,7 @@ func TestClearHandler(t *testing.T) {
 	os.WriteFile(filepath.Join(dir, "subdir", "bar.txt"), []byte("def"), 0644)
 
 	h := ClearHandler(dir)
-	r := httptest.NewRequest("POST", "/api/clear", nil)
+	r := httptest.NewRequestWithContext(context.Background(), "POST", "/api/clear", nil)
 	w := httptest.NewRecorder()
 	h.ServeHTTP(w, r)
 	if w.Code != 200 {
