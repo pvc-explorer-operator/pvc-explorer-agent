@@ -1,3 +1,4 @@
+// Package pvcwatch monitors PVC usage status by watching pod volumes.
 package pvcwatch
 
 import (
@@ -11,6 +12,7 @@ import (
 	"k8s.io/client-go/rest"
 )
 
+// Watcher monitors PVC usage by listing pods that reference the same claim.
 type Watcher struct {
 	client    kubernetes.Interface
 	namespace string
@@ -18,6 +20,7 @@ type Watcher struct {
 	pvcName   string
 }
 
+// New creates a Watcher that monitors PVC usage for the given claim name.
 func New(pvcName string) (*Watcher, error) {
 	cfg, err := rest.InClusterConfig()
 	if err != nil {
@@ -41,8 +44,10 @@ func New(pvcName string) (*Watcher, error) {
 	}, nil
 }
 
+// PodName returns the name of the current pod.
 func (w *Watcher) PodName() string { return w.selfName }
 
+// PVCInUse checks whether the PVC is currently mounted by another active pod.
 func (w *Watcher) PVCInUse(ctx context.Context) (bool, error) {
 	pods, err := w.client.CoreV1().Pods(w.namespace).List(ctx, metav1.ListOptions{})
 	if err != nil {

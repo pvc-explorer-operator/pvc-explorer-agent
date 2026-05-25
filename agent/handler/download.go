@@ -1,3 +1,4 @@
+// Package handler provides HTTP handlers for PVC file operations.
 package handler
 
 import (
@@ -8,6 +9,8 @@ import (
 	"path/filepath"
 )
 
+// DownloadHandler returns an HTTP handler that streams a file or directory
+// from the PVC as a zip archive.
 func DownloadHandler(root string) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		defer recover500(w)
@@ -16,11 +19,13 @@ func DownloadHandler(root string) http.Handler {
 			return
 		}
 		p := r.URL.Query().Get("path")
+		//nolint:gosec // abs validated through safeJoin
 		abs, err := safeJoin(root, p)
 		if err != nil {
 			http.Error(w, `{"error":"bad path"}`, http.StatusBadRequest)
 			return
 		}
+		//nolint:gosec // abs validated through safeJoin
 		info, err := os.Stat(abs)
 		if err != nil {
 			if os.IsNotExist(err) {
@@ -34,8 +39,9 @@ func DownloadHandler(root string) http.Handler {
 			w.Header().Set("Content-Type", "application/zip")
 			w.Header().Set("Content-Disposition", "attachment; filename=archive.zip")
 			zipWriter := zip.NewWriter(w)
-			defer zipWriter.Close()
-			filepath.Walk(abs, func(fp string, fi os.FileInfo, err error) error {
+			defer func() { _ = zipWriter.Close() }()
+			//nolint:gosec // abs validated through safeJoin
+			_ = filepath.Walk(abs, func(fp string, fi os.FileInfo, err error) error {
 				if err != nil {
 					return nil
 				}
@@ -65,19 +71,21 @@ func DownloadHandler(root string) http.Handler {
 					return nil
 				}
 				_, _ = io.Copy(wtr, f)
-				f.Close()
+				_ = f.Close()
 				return nil
 			})
 			return
 		}
+		//nolint:gosec // abs validated through safeJoin
 		f, err := os.Open(abs)
 		if err != nil {
 			http.Error(w, `{"error":"internal error"}`, http.StatusInternalServerError)
 			return
 		}
-		defer f.Close()
+		defer func() { _ = f.Close() }()
 		w.Header().Set("Content-Disposition", "attachment; filename="+filepath.Base(abs))
 		w.Header().Set("Content-Type", "application/octet-stream")
-		io.Copy(w, f)
+		//nolint:gosec // abs validated through safeJoin
+		_, _ = io.Copy(w, f)
 	})
 }

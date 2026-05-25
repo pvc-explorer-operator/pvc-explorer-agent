@@ -1,3 +1,4 @@
+// Package embedui provides an embedded Vue UI handler with overlay support.
 package embedui
 
 import (
@@ -11,6 +12,8 @@ import (
 //go:embed ui
 var uiFS embed.FS
 
+// Handler returns an HTTP handler that serves the embedded Vue UI.
+// If overlayDir is set, files from that directory take precedence.
 func Handler(overlayDir string) http.Handler {
 	sub, err := fs.Sub(uiFS, "ui")
 	if err != nil {

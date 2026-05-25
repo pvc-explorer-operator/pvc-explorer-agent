@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"sync"
+	"time"
 
 	embedui "github.com/pvc-explorer-operator/pvc-explorer-agent"
 	"github.com/pvc-explorer-operator/pvc-explorer-agent/agent"
@@ -104,7 +105,7 @@ func main() {
 		mode.mu.RLock()
 		forceRW := mode.forceRW
 		mode.mu.RUnlock()
-		json.NewEncoder(w).Encode(map[string]interface{}{
+		_ = json.NewEncoder(w).Encode(map[string]interface{}{
 			"readonly":  ro,
 			"forceRW":   forceRW,
 			"pvcWatch":  mode.watcher != nil,
@@ -130,7 +131,7 @@ func main() {
 		}
 		mode.setForceRW(req.ForceRW)
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(map[string]bool{"forceRW": req.ForceRW})
+		_ = json.NewEncoder(w).Encode(map[string]bool{"forceRW": req.ForceRW})
 	})
 
 	mux.Handle("/", embedui.Handler(uiOverlay))
@@ -141,14 +142,19 @@ func main() {
 	// mode remains fully open.
 	handler := agent.WithAuth(mux, authToken)
 
-	addr := ":8081"
+	srv := &http.Server{
+		Addr:         ":8081",
+		Handler:      handler,
+		ReadTimeout:  30 * time.Second,
+		WriteTimeout: 30 * time.Second,
+	}
 	if authToken != "" {
-		fmt.Printf("PVC Exporter Agent listening on %s with token authentication\n", addr)
+		fmt.Printf("PVC Exporter Agent listening on %s with token authentication\n", srv.Addr)
 	} else {
-		fmt.Printf("PVC Exporter Agent listening on %s (no authentication)\n", addr)
+		fmt.Printf("PVC Exporter Agent listening on %s (no authentication)\n", srv.Addr)
 	}
 	fmt.Printf("  root: %s, pvc: %s, cluster: %s\n", root, pvcName, clusterName)
-	if err := http.ListenAndServe(addr, handler); err != nil {
+	if err := srv.ListenAndServe(); err != nil {
 		log.Fatalf("server failed: %v", err)
 	}
 }
