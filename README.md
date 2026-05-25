@@ -70,7 +70,6 @@ It includes nested directories plus text, YAML, JSON, CSV, and log files.
 ```bash
 docker pull ghcr.io/pvc-explorer-operator/pvc-explorer-agent:latest
 docker pull ghcr.io/pvc-explorer-operator/pvc-explorer-agent:dev
-docker pull ghcr.io/pvc-explorer-operator/pvc-explorer-agent:v0.1.0
 ```
 
 ### Verify signatures
@@ -83,23 +82,8 @@ cosign verify ghcr.io/pvc-explorer-operator/pvc-explorer-agent:latest \
   --certificate-oidc-issuer https://token.actions.githubusercontent.com
 ```
 
-Build provenance is published alongside the image manifest as an OCI attestation.
-
-```bash
-cosign verify-attestation ghcr.io/pvc-explorer-operator/pvc-explorer-agent:latest \
-  --type slsaprovenance \
-  --certificate-identity-regexp 'https://github.com/pvc-explorer-operator/pvc-explorer-agent/.github/workflows/oci-image.yml@.*' \
-  --certificate-oidc-issuer https://token.actions.githubusercontent.com
-```
-
-An SBOM attestation is also published alongside the image.
-
-```bash
-cosign verify-attestation ghcr.io/pvc-explorer-operator/pvc-explorer-agent:latest \
-  --type spdxjson \
-  --certificate-identity-regexp 'https://github.com/pvc-explorer-operator/pvc-explorer-agent/.github/workflows/oci-image.yml@.*' \
-  --certificate-oidc-issuer https://token.actions.githubusercontent.com
-```
+The workflow enables BuildKit provenance and attaches an SBOM OCI artifact with cosign.
+The commands below show the supported, user-facing verification and retrieval flow.
 
 Downloadable SBOM files are also published. The Syft-generated SPDX JSON SBOM is
 attached to the image as an OCI artifact via `cosign attach sbom`:
@@ -112,7 +96,7 @@ cosign download sbom ghcr.io/pvc-explorer-operator/pvc-explorer-agent:latest
 cosign download sbom ghcr.io/pvc-explorer-operator/pvc-explorer-agent:dev
 
 # Download the SBOM for a specific release
-cosign download sbom ghcr.io/pvc-explorer-operator/pvc-explorer-agent:v0.1.0
+cosign download sbom ghcr.io/pvc-explorer-operator/pvc-explorer-agent:v<release>
 ```
 
 Additionally:
@@ -123,10 +107,10 @@ Additionally:
 ### Release process
 
 1. Merge the release-ready changes into `main`.
-2. Create and push a version tag such as `v0.1.0`.
+2. Create and push a version tag such as `<version>`.
 3. Draft or publish a GitHub Release for that tag.
 4. Publishing the release triggers the image workflow.
-5. The workflow builds from `Dockerfile`, pushes `ghcr.io/pvc-explorer-operator/pvc-explorer-agent:v0.1.0`, signs it with cosign, and attaches provenance.
+5. The workflow builds from `Dockerfile`, pushes `ghcr.io/pvc-explorer-operator/pvc-explorer-agent:<version>`, signs it with cosign, and attaches provenance.
 6. If the release is not marked as a prerelease, the same digest is also tagged as `:latest`.
 
 Pushes to `main` that change published-image inputs refresh the mutable `:dev` image.
