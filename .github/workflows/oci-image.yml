@@ -84,12 +84,6 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: Sign dev image
-        env:
-          COSIGN_YES: "true"
-        run: |
-          cosign sign ghcr.io/${{ github.repository }}@${{ steps.build.outputs.digest }}
-
       - name: Generate dev SBOM file
         env:
           IMAGE_REF: ghcr.io/${{ github.repository }}@${{ steps.build.outputs.digest }}
@@ -148,8 +142,8 @@ jobs:
               --jq '.[]
                 | select(.name != env.CURRENT_DIGEST)
                 | select(
-                    (.metadata.container.tags != null and ([.metadata.container.tags[] | startswith("dev-")] | any))
-                    or (.metadata.container.tags == null)
+                    ((.metadata.container.tags // []) | map(startswith("dev-")) | any)
+                    or (((.metadata.container.tags // []) | length) == 0)
                   )
                 | [.id, .name, ((.metadata.container.tags // []) | join(","))]
                 | @tsv'
@@ -169,6 +163,12 @@ jobs:
             deleted=$((deleted + 1))
           done
           echo "Deleted ${deleted} stale OCI package version(s)"
+
+      - name: Sign dev image
+        env:
+          COSIGN_YES: "true"
+        run: |
+          cosign sign ghcr.io/${{ github.repository }}@${{ steps.build.outputs.digest }}
 
       - name: Attach dev SBOM to image with cosign
         env:
