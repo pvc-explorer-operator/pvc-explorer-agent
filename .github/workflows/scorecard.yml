@@ -10,16 +10,18 @@ on:
 
 permissions:
   contents: read
-  id-token: write
 
 jobs:
   scorecard:
+    permissions:
+      contents: read
+      id-token: write
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
       - name: Run OpenSSF Scorecard analysis
-        uses: ossf/scorecard-action@3d34671c90ff84e8b851ad4de5ca3dc589cbad79 # v2.3.0
+        uses: ossf/scorecard-action@4eaacf0543bb3f2c246792bd56e8cdeffafb205a # v2.4.3
         with:
           results_file: results.sarif
           results_format: sarif
